@@ -42,14 +42,15 @@ class Path:
         t = 0
         # find closest segment
         for idx, segment in enumerate(self.segment_list):
-            s, t = segment.project_point(p)
-            if t < minimal_distance:
+            s_segment, t_segment = segment.project_point(p)
+            if t_segment < minimal_distance:
                 closest_segment_index = idx
-                minimal_distance = t
+                minimal_distance = t_segment
+                s = s_segment
         # account for the lengths of all previous segments
         for idx in range(closest_segment_index):
             s += self.segment_list[idx].length
-        return s, t
+        return s, minimal_distance
 
 
 class Servo:
