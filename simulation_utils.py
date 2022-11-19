@@ -57,7 +57,11 @@ class Vehicle:
         self.psi = self.psi_dot * self.dt
 
     def transform_to_ego_coordinates(self, point: Tuple[float, float]) -> Tuple[float, float]:
-        pass
+        xg = point[0] - self.x
+        yg = point[1] - self.y
+        xe = np.cos(self.psi) * xg + np.sin(self.psi) * yg
+        ye = -np.sin(self.psi) * xg + np.cos(self.psi) * yg
+        return xe, ye
 
     def track_path(self, path: Path) -> float:
         pass
