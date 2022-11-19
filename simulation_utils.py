@@ -26,7 +26,8 @@ class PathSegment:
 
 
 class Path:
-    def __init__(self, origin: Tuple[float, float], waypoints: np.ndarray):
+    def __init__(self, waypoints: np.ndarray):
+        self.origin = waypoints[0]
         self.waypoints = waypoints
         self.segment_list = []
         self.total_length = 0
@@ -51,6 +52,19 @@ class Path:
         for idx in range(closest_segment_index):
             s += self.segment_list[idx].length
         return s, minimal_distance
+
+    def transform_to_global_coordinates(self, s: float) -> np.ndarray:
+        if s < 0:
+            return self.origin
+        else:
+            if s > self.total_length:
+                return self.waypoints[self.waypoints.shape[0] - 1].tolist()
+            else:
+                segment_idx = 0
+                while s > self.segment_list[segment_idx].length:
+                    s -= self.segment_list[segment_idx].length
+                    segment_idx += 1
+                return self.segment_list[segment_idx].start_point + s * self.segment_list[segment_idx].direction
 
 
 class Servo:
