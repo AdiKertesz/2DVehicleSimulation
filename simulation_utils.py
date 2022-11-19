@@ -1,6 +1,8 @@
 from typing import List, Tuple
 import numpy as np
 
+deg2rad = np.pi / 180
+
 
 class Path:
     def __init__(self, origin: Tuple[float, float], waypoints: np.ndarray):
@@ -22,7 +24,8 @@ class Servo:
 
 
 class Vehicle:
-    def __init__(self, x0: float, y0: float, psi0: float, v: float):
+    def __init__(self, length: float, x0: float, y0: float, psi0: float, v: float, dt: float):
+        self.length = length
         self.v = v
 
         self.x = x0
@@ -32,15 +35,23 @@ class Vehicle:
 
         self.x_dot = self.v * np.cos(self.psi)
         self.y_dot = self.v * np.cos(self.psi)
-        self.psi_dot = 0
-        self.delta_dot = 0
+        self.psi_dot = self.v * np.tan(self.delta) / self.length
 
-        self.servo = Servo(self.delta, 45, 20, 0.2)
+        self.servo = Servo(self.delta, 45 * deg2rad, 20 * deg2rad, 0.2)
 
-    def advance(self, dt: float):
+        self.dt = dt
+        self.dlook_ahead = v*dt
+
+    def advance(self):
         pass
 
     def transform_to_ego_coordinates(self, point: Tuple[float, float]) -> Tuple[float, float]:
+        pass
+
+    def track_path(self, path: Path) -> float:
+        pass
+
+    def estimate_position(self):
         pass
 
 
