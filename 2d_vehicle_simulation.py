@@ -7,12 +7,13 @@ if __name__ == '__main__':
     dt = 0.1  # [sec]
     t_max = 300  # [sec]
     vehicle_length = 2.728  # [m] Ford Fusion Wheelbase
+    vehicle_cg = vehicle_length / 2.0  # [m] didn't find the data, try again late
 
     # initialize state vector
     t = 0
     x0, y0, psi0, v, path = handle_input_parameters(sys.argv)
 
-    vehicle = Vehicle(vehicle_length, x0, y0, psi0, v, dt)
+    vehicle = Vehicle(vehicle_length, vehicle_cg, x0, y0, psi0, v, dt)
 
     while t < t_max:
         vehicle.advance()
