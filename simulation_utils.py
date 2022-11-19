@@ -79,20 +79,18 @@ class Servo:
 
 
 class Vehicle:
-    def __init__(self, length: float, cg: float, x0: float, y0: float, psi0: float, v: float, dt: float):
+    def __init__(self, length: float, x0: float, y0: float, psi0: float, v: float, dt: float):
         self.length = length
-        self.lr = cg
         self.v = v
 
         self.x = x0
         self.y = y0
         self.psi = psi0
         self.delta = 0
-        self.slip = np.arctan2(self.lr * np.tan(self.delta), self.length)
 
         self.x_dot = self.v * np.cos(self.psi)
         self.y_dot = self.v * np.cos(self.psi)
-        self.psi_dot = self.v * np.tan(self.delta) * np.cos(self.slip) / self.length
+        self.psi_dot = self.v * np.tan(self.delta) / self.length
 
         self.servo = Servo(self.delta, 45 * deg2rad, 20 * deg2rad, 0.2)
 
@@ -106,7 +104,7 @@ class Vehicle:
     def advance(self):
         self.x_dot = self.v * np.cos(self.psi)
         self.y_dot = self.v * np.cos(self.psi)
-        self.psi_dot = self.v * np.tan(self.delta) * np.cos(self.slip) / self.length
+        self.psi_dot = self.v * np.tan(self.delta) / self.length
         self.x = self.x_dot * self.dt
         self.y = self.y_dot * self.dt
         self.psi = self.psi_dot * self.dt
