@@ -11,14 +11,14 @@ if __name__ == '__main__':
 
     # initialize state vector
     t = 0
-    x0, y0, psi0, v, path = handle_input_parameters(sys.argv)
+    x0, y0, psi0, v, vehicle_path = handle_input_parameters(sys.argv)
 
     vehicle = Vehicle(vehicle_length, vehicle_cg, x0, y0, psi0, v, dt)
 
     while t < t_max:
         vehicle.advance()
         vehicle.estimate_position()
-        delta_command = vehicle.track_path(path)
+        delta_command = vehicle.track_path(vehicle_path)
         vehicle.servo.angle_command(delta_command)
 
         t += dt

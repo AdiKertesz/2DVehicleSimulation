@@ -4,6 +4,31 @@ import numpy as np
 deg2rad = np.pi / 180
 
 
+class PathSegment:
+    def __init__(self, start_point: np.ndarray, finish_point: np.ndarray):
+        self.start_point = start_point
+        self.finish_point = finish_point
+        self.direction = self.finish_point - self.start_point
+        self.length = np.linalg.norm(self.direction)
+        self.direction = self.direction / self.length
+
+    def project_point(self, point: np.ndarray) -> Tuple[float, float]:
+        v = point - self.start_point
+        v_parallel = np.dot(v, self.direction)
+        v_normal = np.linalg.norm(v - v_parallel * self.direction)
+        return v_parallel, v_normal
+
+    def distance_from_point(self, point: np.ndarray):
+        parallel, normal = self.project_point(point)
+        if parallel < 0:
+            return np.linalg.norm(point - self.start_point)
+        else:
+            if parallel > self.length:
+                return np.linalg.norm(point - self.finish_point)
+            else:
+                return normal
+
+
 class Path:
     def __init__(self, origin: Tuple[float, float], waypoints: np.ndarray):
         self.waypoints = waypoints
@@ -63,7 +88,7 @@ class Vehicle:
         ye = -np.sin(self.psi) * xg + np.cos(self.psi) * yg
         return xe, ye
 
-    def track_path(self, path: Path) -> float:
+    def track_path(self, vehicle_path: Path) -> float:
         pass
 
     def estimate_position(self):
