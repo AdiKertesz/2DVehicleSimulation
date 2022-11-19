@@ -10,6 +10,17 @@ class Path:
         pass
 
 
+class Servo:
+    def __init__(self, initial_angle: float, max_angle: float, max_rate: float, time_const: float):
+        self.angle = initial_angle
+        self.max_angle = max_angle
+        self.max_rate = max_rate
+        self.time_const = time_const
+
+    def angle_command(self, angle_command: float) -> float:
+        pass
+
+
 class Vehicle:
     def __init__(self, x0: float, y0: float, psi0: float, v: float):
         self.v = v
@@ -23,6 +34,8 @@ class Vehicle:
         self.y_dot = self.v * np.cos(self.psi)
         self.psi_dot = 0
         self.delta_dot = 0
+
+        self.servo = Servo(self.delta, 45, 20, 0.2)
 
     def advance(self, dt: float):
         pass
