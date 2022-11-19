@@ -16,25 +16,40 @@ class PathSegment:
         v = point - self.start_point
         v_parallel = np.dot(v, self.direction)
         v_normal = np.linalg.norm(v - v_parallel * self.direction)
-        return v_parallel, v_normal
-
-    def distance_from_point(self, point: np.ndarray):
-        parallel, normal = self.project_point(point)
-        if parallel < 0:
-            return np.linalg.norm(point - self.start_point)
-        else:
-            if parallel > self.length:
-                return np.linalg.norm(point - self.finish_point)
+        if v_parallel < 0:  # the point is before the segment starting point
+            return 0, np.linalg.norm(point - self.start_point)
+        else:  # the point is after the segment finishing point
+            if v_parallel > self.length:
+                return self.length, np.linalg.norm(point - self.finish_point)
             else:
-                return normal
+                return v_parallel, v_normal
 
 
 class Path:
     def __init__(self, origin: Tuple[float, float], waypoints: np.ndarray):
         self.waypoints = waypoints
+        self.segment_list = []
+        self.total_length = 0
+        for i in range(self.waypoints.shape[0] - 1):
+            self.segment_list.append(PathSegment(self.waypoints[i], self.waypoints[i+1]))
+            self.total_length += self.segment_list[-1].length
 
     def transform_to_path_coordinates(self, point: Tuple[float, float]) -> Tuple[float, float]:
-        pass
+        p = np.array(point)
+        minimal_distance = 1e100
+        closest_segment_index = 0
+        s = 0
+        t = 0
+        # find closest segment
+        for idx, segment in enumerate(self.segment_list):
+            s, t = segment.project_point(p)
+            if t < minimal_distance:
+                closest_segment_index = idx
+                minimal_distance = t
+        # account for the lengths of all previous segments
+        for idx in range(closest_segment_index):
+            s += self.segment_list[idx].length
+        return s, t
 
 
 class Servo:
