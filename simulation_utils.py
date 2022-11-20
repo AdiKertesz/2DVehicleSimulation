@@ -40,7 +40,6 @@ class Path:
         minimal_distance = 1e100
         closest_segment_index = 0
         s = 0
-        t = 0
         # find closest segment
         for idx, segment in enumerate(self.segment_list):
             s_segment, t_segment = segment.project_point(p)
@@ -142,8 +141,15 @@ class Vehicle:
             s_total += segment.length
         return s_ref_point
 
-    def track_path(self, vehicle_path: Path) -> float:
-        pass
+    def track_path(self, desired_path: Path) -> float:
+        s = self.intersect_ye_and_path(desired_path)
+        ref_point = desired_path.transform_to_global_coordinates(s + self.dlook_ahead)
+        vector_to_to_ref = ref_point - np.array([self.x, self.y])
+        distance_to_ref = np.linalg.norm(vector_to_to_ref)
+        xe_vector = np.array([np.cos(self.psi), np.sin(self.psi)])
+        angle_from_xe_to_ref = np.arccos(np.dot(xe_vector, vector_to_to_ref)/distance_to_ref)
+        r = 0.5 * distance_to_ref / np.sin(angle_from_xe_to_ref)
+        return np.arctan2(self.length, r)
 
     def estimate_position(self):
         # perfect estimation, for now
