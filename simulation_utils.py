@@ -109,12 +109,38 @@ class Vehicle:
         self.y = self.y_dot * self.dt
         self.psi = self.psi_dot * self.dt
 
-    def transform_to_ego_coordinates(self, point: Tuple[float, float]) -> Tuple[float, float]:
+    def transform_to_ego_coordinates(self, point: np.ndarray) -> np.ndarray:
         xg = point[0] - self.x
         yg = point[1] - self.y
         xe = np.cos(self.psi) * xg + np.sin(self.psi) * yg
         ye = -np.sin(self.psi) * xg + np.cos(self.psi) * yg
-        return xe, ye
+        return np.array([xe, ye])
+
+    def intersect_ye_and_path(self, desired_path: Path) -> float:
+        minimum_ye_distance = 1e100
+        s_ref_point = 0
+        s_total = 0
+        for segment in desired_path.segment_list:
+            # rotate to ego
+            start_point = self.transform_to_ego_coordinates(segment.start_point)
+            finish_point = self.transform_to_ego_coordinates(segment.finish_point)
+            if start_point[0] <= 0 and finish_point[0] >= 0:  # there is intersection
+                rotated_segment = PathSegment(start_point, finish_point)
+                if rotated_segment.direction[0] < 1e-10:  # segment direction is ye
+                    if np.linalg.norm(start_point) < np.linalg.norm(finish_point):
+                        ye_distance = np.linalg.norm(start_point)
+                        s = 0
+                    else:
+                        ye_distance = np.linalg.norm(finish_point)
+                        s = rotated_segment.length
+                else:
+                    s = -start_point[0] / rotated_segment.direction[0]
+                    ye_distance = start_point[1] + s * rotated_segment.direction[1]
+                if np.abs(ye_distance) < minimum_ye_distance:
+                    minimum_ye_distance = np.abs(ye_distance)
+                    s_ref_point = s_total + s
+            s_total += segment.length
+        return s_ref_point
 
     def track_path(self, vehicle_path: Path) -> float:
         pass
