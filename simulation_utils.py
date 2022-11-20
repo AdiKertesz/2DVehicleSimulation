@@ -67,15 +67,30 @@ class Path:
 
 
 class Servo:
-    def __init__(self, initial_angle: float, max_angle: float, max_rate: float, time_const: float):
+    def __init__(self, initial_angle: float, max_angle: float, max_rate: float, bandwidth: float, damping: float, dt: float):
         self.angle = initial_angle
+        self.angle_rate = 0
         self.max_angle = max_angle
         self.max_rate = max_rate
-        self.time_const = time_const
+        self.bandwidth = bandwidth
+        self.damping = damping
+        self.dt = dt
 
     def angle_command(self, angle_command: float) -> float:
-        # perfect servo for now
-        return angle_command
+        # transfer function: w^2 / (s^2 + 2*zeta*s + w^2)
+
+        w2 = self.bandwidth ** 2
+        z2 = 2 * self.damping * self.bandwidth
+        self.angle_rate += (w2 * (angle_command - self.angle) - z2 * self.angle_rate) * self.dt
+        # rate limiter
+        if np.abs(self.angle_rate) > self.max_rate:
+            self.angle_rate = self.max_rate * np.sign(self.angle_rate)
+        self.angle += self.angle_rate * self.dt
+        # state limiter
+        if np.abs(self.angle) > self.max_angle:
+            self.angle = self.max_angle * np.sign(self.angle)
+
+        return self.angle
 
 
 class Vehicle:
