@@ -74,7 +74,8 @@ class Servo:
         self.time_const = time_const
 
     def angle_command(self, angle_command: float) -> float:
-        pass
+        # perfect servo for now
+        return angle_command
 
 
 class Vehicle:
@@ -94,7 +95,7 @@ class Vehicle:
         self.servo = Servo(self.delta, 45 * deg2rad, 20 * deg2rad, 0.2)
 
         self.dt = dt
-        self.dlook_ahead = v*dt
+        self.dlook_ahead = v * 10 * dt
 
         self.x_measured = self.x
         self.y_measured = self.y
@@ -102,11 +103,11 @@ class Vehicle:
 
     def advance(self):
         self.x_dot = self.v * np.cos(self.psi)
-        self.y_dot = self.v * np.cos(self.psi)
+        self.y_dot = self.v * np.sin(self.psi)
         self.psi_dot = self.v * np.tan(self.delta) / self.length
-        self.x = self.x_dot * self.dt
-        self.y = self.y_dot * self.dt
-        self.psi = self.psi_dot * self.dt
+        self.x += self.x_dot * self.dt
+        self.y += self.y_dot * self.dt
+        self.psi += self.psi_dot * self.dt
 
     def transform_to_ego_coordinates(self, point: np.ndarray) -> np.ndarray:
         xg = point[0] - self.x
@@ -144,12 +145,11 @@ class Vehicle:
     def track_path(self, desired_path: Path) -> float:
         s = self.intersect_ye_and_path(desired_path)
         ref_point = desired_path.transform_to_global_coordinates(s + self.dlook_ahead)
-        vector_to_to_ref = ref_point - np.array([self.x, self.y])
-        distance_to_ref = np.linalg.norm(vector_to_to_ref)
-        xe_vector = np.array([np.cos(self.psi), np.sin(self.psi)])
-        angle_from_xe_to_ref = np.arccos(np.dot(xe_vector, vector_to_to_ref)/distance_to_ref)
-        r = 0.5 * distance_to_ref / np.sin(angle_from_xe_to_ref)
-        return np.arctan2(self.length, r)
+        ref_point_ego = self.transform_to_ego_coordinates(ref_point)
+        # angle_from_xe_to_ref = np.arctan2(ref_point_ego[1], ref_point_ego[0])
+        # rho = np.sin(angle_from_xe_to_ref) / (0.5 * np.linalg.norm(ref_point_ego))  # 1 / R
+        rho = ref_point_ego[1] / (0.5 * np.linalg.norm(ref_point_ego) ** 2)  # 1 / R
+        return np.arctan(self.length * rho)
 
     def estimate_position(self):
         # perfect estimation, for now
