@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 if __name__ == '__main__':
 
     # simulation parameters
-    dt = 0.1  # [sec]
+    dt = 0.04  # [sec]
     t_max = 300  # [sec]
     vehicle_length = 2.728  # [m] Ford Fusion Wheelbase
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     plt.plot(vehicle_path.waypoints[:, 0], vehicle_path.waypoints[:, 1])
     plt.plot(x, y)
     plt.xlabel('Xg')
-    plt.xlabel('Yg')
+    plt.ylabel('Yg')
     plt.legend(['Desired path', 'Vehicle path'])
     plt.grid()
     plt.show()
