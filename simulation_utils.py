@@ -1,8 +1,8 @@
 from typing import List, Tuple
 import numpy as np
+from random import random
 
 deg2rad = np.pi / 180
-
 
 class PathSegment:
     def __init__(self, start_point: np.ndarray, finish_point: np.ndarray):
@@ -124,10 +124,10 @@ class Vehicle:
         self.psi += self.psi_dot * self.dt
 
     def transform_to_ego_coordinates(self, point: np.ndarray) -> np.ndarray:
-        xg = point[0] - self.x
-        yg = point[1] - self.y
-        xe = np.cos(self.psi) * xg + np.sin(self.psi) * yg
-        ye = -np.sin(self.psi) * xg + np.cos(self.psi) * yg
+        xg = point[0] - self.x_measured
+        yg = point[1] - self.y_measured
+        xe = np.cos(self.psi_measured) * xg + np.sin(self.psi_measured) * yg
+        ye = -np.sin(self.psi_measured) * xg + np.cos(self.psi_measured) * yg
         return np.array([xe, ye])
 
     def intersect_ye_and_path(self, desired_path: Path) -> float:
@@ -167,9 +167,9 @@ class Vehicle:
 
     def estimate_position(self):
         # perfect estimation, for now
-        self.x_measured = self.x
-        self.y_measured = self.y
-        self.psi_measured = self.psi
+        self.x_measured = self.x + (1-2*random()) * 1
+        self.y_measured = self.y + (1-2*random()) * 1
+        self.psi_measured = self.psi + (1-2*random()) * 0.5
 
 
 def handle_input_parameters(input_list: List[str]) -> Tuple[float, float, float, float, Path]:
