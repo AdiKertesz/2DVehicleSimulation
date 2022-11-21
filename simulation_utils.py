@@ -78,7 +78,6 @@ class Servo:
 
     def angle_command(self, angle_command: float) -> float:
         # transfer function: w^2 / (s^2 + 2*zeta*s + w^2)
-
         w2 = self.bandwidth ** 2
         z2 = 2 * self.damping * self.bandwidth
         self.angle_rate += (w2 * (angle_command - self.angle) - z2 * self.angle_rate) * self.dt
@@ -107,10 +106,10 @@ class Vehicle:
         self.y_dot = self.v * np.cos(self.psi)
         self.psi_dot = self.v * np.tan(self.delta) / self.length
 
-        self.servo = Servo(self.delta, 45 * deg2rad, 20 * deg2rad, 0.2)
+        self.servo = Servo(self.delta, 45 * deg2rad, 20 * deg2rad, 16.5, 0.7, dt)
 
         self.dt = dt
-        self.dlook_ahead = v * 10 * dt
+        self.dlook_ahead = v * 100 * dt
 
         self.x_measured = self.x
         self.y_measured = self.y
