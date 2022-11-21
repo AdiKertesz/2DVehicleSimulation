@@ -4,6 +4,7 @@ from random import random
 
 deg2rad = np.pi / 180
 
+
 class PathSegment:
     def __init__(self, start_point: np.ndarray, finish_point: np.ndarray):
         self.start_point = start_point
@@ -173,4 +174,25 @@ class Vehicle:
 
 
 def handle_input_parameters(input_list: List[str]) -> Tuple[float, float, float, float, Path]:
-    pass
+    if not input_list:  # it's empty
+        raise IOError('no inputs')
+    if '-x0' not in input_list or '-y0' not in input_list or '-psi' not in input_list \
+            or '-v' not in input_list or '-path' not in input_list:
+        raise IOError('command line should be: python3 <pyfile> -x0 <x0> -y0 <y0 -psi <psi> -v <v> -path <desired_path_directory>')
+    x0 = float(input_list[input_list.index('-x0') + 1])
+    y0 = float(input_list[input_list.index('-y0') + 1])
+    psi = float(input_list[input_list.index('-psi') + 1])
+    v = float(input_list[input_list.index('-v') + 1])
+    desired_path_directory = input_list[input_list.index('-path') + 1]
+    with open(desired_path_directory, 'r') as f:
+        lines = f.readlines()
+        f.close()
+    waypoints = np.zeros((len(lines), 2))
+    for idx, line in enumerate(lines):
+        s = line[:-1].split(',')
+        if len(s) < 2:
+            break
+        waypoints[idx][0] = s[0]
+        waypoints[idx][1] = s[1]
+    desired_path = Path(waypoints)
+    return x0, y0, psi, v, desired_path
