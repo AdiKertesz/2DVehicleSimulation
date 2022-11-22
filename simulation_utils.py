@@ -265,7 +265,7 @@ def handle_input_parameters(input_list: List[str]) -> Tuple[float, float, float,
         raise IOError('command line should be: python3 <pyfile> -x0 <x0> -y0 <y0 -psi <psi> -v <v> -path <desired_path_directory>')
     x0 = float(input_list[input_list.index('-x0') + 1])
     y0 = float(input_list[input_list.index('-y0') + 1])
-    psi = float(input_list[input_list.index('-psi') + 1])
+    psi = float(input_list[input_list.index('-psi') + 1]) * deg2rad
     v = float(input_list[input_list.index('-v') + 1])
     desired_path_directory = input_list[input_list.index('-path') + 1]
     # read csv file
